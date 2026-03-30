@@ -7,9 +7,9 @@ export default function Settings() {
   const [formData, setFormData] = useState(companyProfile);
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateCompanyProfile(formData);
+    await updateCompanyProfile(formData);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
@@ -17,20 +17,20 @@ export default function Settings() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Pengaturan</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-lg border border-gray-200">
         <div className="p-6 space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">Company Profile</h3>
+          <h3 className="text-lg font-medium text-gray-900">Profil Perusahaan</h3>
           <p className="text-sm text-gray-500">
-            This information will be displayed on your invoices.
+            Informasi ini akan ditampilkan pada faktur Anda.
           </p>
 
           <div className="grid grid-cols-1 gap-y-6 gap-x-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Company Name
+                Nama Perusahaan
               </label>
               <input
                 type="text"
@@ -44,7 +44,7 @@ export default function Settings() {
 
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                Address
+                Alamat
               </label>
               <textarea
                 id="address"
@@ -58,7 +58,7 @@ export default function Settings() {
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Phone
+                Telepon
               </label>
               <input
                 type="text"
@@ -72,7 +72,7 @@ export default function Settings() {
 
             <div>
               <label htmlFor="bankDetails" className="block text-sm font-medium text-gray-700">
-                Bank Details
+                Rekening Bank
               </label>
               <textarea
                 id="bankDetails"
@@ -86,7 +86,7 @@ export default function Settings() {
 
             <div>
               <label htmlFor="ownerName" className="block text-sm font-medium text-gray-700">
-                Owner / Signatory Name
+                Nama Pemilik / Penandatangan
               </label>
               <input
                 type="text"
@@ -102,14 +102,14 @@ export default function Settings() {
 
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end items-center rounded-b-lg">
           {isSaved && (
-            <span className="text-sm text-green-600 mr-4 font-medium">Settings saved successfully!</span>
+            <span className="text-sm text-green-600 mr-4 font-medium">Pengaturan berhasil disimpan!</span>
           )}
           <button
             type="submit"
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             <Save className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-            Save Settings
+            Simpan Pengaturan
           </button>
         </div>
       </form>

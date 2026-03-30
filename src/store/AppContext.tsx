@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { auth, db, handleFirestoreError, OperationType } from '../firebase';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, onSnapshot, query, where, serverTimestamp } from 'firebase/firestore';
 
 export interface Client {
   id: string;
   name: string;
   address: string;
   phone: string;
+  userId: string;
+  createdAt?: any;
 }
 
 export interface Supplier {
@@ -13,6 +17,8 @@ export interface Supplier {
   name: string;
   address: string;
   phone: string;
+  userId: string;
+  createdAt?: any;
 }
 
 export interface InvoiceItem {
@@ -35,6 +41,8 @@ export interface Invoice {
   total: number;
   status: 'Draft' | 'Sent' | 'Paid';
   notes?: string;
+  userId: string;
+  createdAt?: any;
 }
 
 export interface CompanyProfile {
@@ -43,9 +51,13 @@ export interface CompanyProfile {
   phone: string;
   bankDetails: string;
   ownerName: string;
+  userId: string;
+  updatedAt?: any;
 }
 
 interface AppState {
+  user: User | null;
+  isAuthReady: boolean;
   clients: Client[];
   suppliers: Supplier[];
   invoices: Invoice[];
@@ -53,124 +65,201 @@ interface AppState {
 }
 
 interface AppContextType extends AppState {
-  addClient: (client: Omit<Client, 'id'>) => void;
-  updateClient: (id: string, client: Omit<Client, 'id'>) => void;
-  deleteClient: (id: string) => void;
-  addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
-  updateSupplier: (id: string, supplier: Omit<Supplier, 'id'>) => void;
-  deleteSupplier: (id: string) => void;
-  addInvoice: (invoice: Omit<Invoice, 'id'>) => void;
-  updateInvoice: (id: string, invoice: Partial<Invoice>) => void;
-  deleteInvoice: (id: string) => void;
-  updateCompanyProfile: (profile: CompanyProfile) => void;
+  addClient: (client: Omit<Client, 'id' | 'userId' | 'createdAt'>) => Promise<void>;
+  updateClient: (id: string, client: Partial<Client>) => Promise<void>;
+  deleteClient: (id: string) => Promise<void>;
+  addSupplier: (supplier: Omit<Supplier, 'id' | 'userId' | 'createdAt'>) => Promise<void>;
+  updateSupplier: (id: string, supplier: Partial<Supplier>) => Promise<void>;
+  deleteSupplier: (id: string) => Promise<void>;
+  addInvoice: (invoice: Omit<Invoice, 'id' | 'userId' | 'createdAt'>) => Promise<void>;
+  updateInvoice: (id: string, invoice: Partial<Invoice>) => Promise<void>;
+  deleteInvoice: (id: string) => Promise<void>;
+  updateCompanyProfile: (profile: Omit<CompanyProfile, 'userId' | 'updatedAt'>) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const initialState: AppState = {
-  clients: [],
-  suppliers: [],
-  invoices: [],
-  companyProfile: {
-    name: 'KOPERASI GARUDA MERAH PUTIH',
-    address: 'Dsn. Padangan RT 02 RW 03 Ds. Pagu\nKec. Pagu Kab. Kediri',
-    phone: '0812-5278-8733',
-    bankDetails: 'Rekening Koperasi Garuda Merah Putih\nBank Mandiri : 171-00-1986218-7',
-    ownerName: 'Hariaji',
-  },
+const defaultCompanyProfile: CompanyProfile = {
+  name: 'KOPERASI GARUDA MERAH PUTIH',
+  address: 'Dsn. Padangan RT 02 RW 03 Ds. Pagu\nKec. Pagu Kab. Kediri',
+  phone: '0812-5278-8733',
+  bankDetails: 'Rekening Koperasi Garuda Merah Putih\nBank Mandiri : 171-00-1986218-7',
+  ownerName: 'Hariaji',
+  userId: '',
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<AppState>(() => {
-    const saved = localStorage.getItem('invoice-app-state');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse state from localStorage', e);
-      }
-    }
-    return initialState;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  
+  const [clients, setClients] = useState<Client[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile>(defaultCompanyProfile);
 
   useEffect(() => {
-    localStorage.setItem('invoice-app-state', JSON.stringify(state));
-  }, [state]);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAuthReady(true);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const addClient = (client: Omit<Client, 'id'>) => {
-    setState((prev) => ({
-      ...prev,
-      clients: [...prev.clients, { ...client, id: uuidv4() }],
-    }));
+  useEffect(() => {
+    if (!isAuthReady || !user) {
+      setClients([]);
+      setSuppliers([]);
+      setInvoices([]);
+      setCompanyProfile({ ...defaultCompanyProfile, userId: user?.uid || '' });
+      return;
+    }
+
+    const qClients = query(collection(db, 'clients'), where('userId', '==', user.uid));
+    const unsubClients = onSnapshot(qClients, (snapshot) => {
+      setClients(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Client)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'clients'));
+
+    const qSuppliers = query(collection(db, 'suppliers'), where('userId', '==', user.uid));
+    const unsubSuppliers = onSnapshot(qSuppliers, (snapshot) => {
+      setSuppliers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Supplier)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'suppliers'));
+
+    const qInvoices = query(collection(db, 'invoices'), where('userId', '==', user.uid));
+    const unsubInvoices = onSnapshot(qInvoices, (snapshot) => {
+      setInvoices(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Invoice)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'invoices'));
+
+    const unsubProfile = onSnapshot(doc(db, 'companyProfiles', user.uid), (docSnap) => {
+      if (docSnap.exists()) {
+        setCompanyProfile({ ...docSnap.data() as CompanyProfile, userId: user.uid });
+      } else {
+        setCompanyProfile({ ...defaultCompanyProfile, userId: user.uid });
+      }
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'companyProfiles'));
+
+    return () => {
+      unsubClients();
+      unsubSuppliers();
+      unsubInvoices();
+      unsubProfile();
+    };
+  }, [user, isAuthReady]);
+
+  const addClient = async (client: Omit<Client, 'id' | 'userId' | 'createdAt'>) => {
+    if (!user) return;
+    try {
+      await addDoc(collection(db, 'clients'), {
+        ...client,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'clients');
+    }
   };
 
-  const updateClient = (id: string, client: Omit<Client, 'id'>) => {
-    setState((prev) => ({
-      ...prev,
-      clients: prev.clients.map((c) => (c.id === id ? { ...client, id } : c)),
-    }));
+  const updateClient = async (id: string, client: Partial<Client>) => {
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, 'clients', id), client);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `clients/${id}`);
+    }
   };
 
-  const deleteClient = (id: string) => {
-    setState((prev) => ({
-      ...prev,
-      clients: prev.clients.filter((c) => c.id !== id),
-    }));
+  const deleteClient = async (id: string) => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, 'clients', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `clients/${id}`);
+    }
   };
 
-  const addSupplier = (supplier: Omit<Supplier, 'id'>) => {
-    setState((prev) => ({
-      ...prev,
-      suppliers: [...prev.suppliers, { ...supplier, id: uuidv4() }],
-    }));
+  const addSupplier = async (supplier: Omit<Supplier, 'id' | 'userId' | 'createdAt'>) => {
+    if (!user) return;
+    try {
+      await addDoc(collection(db, 'suppliers'), {
+        ...supplier,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'suppliers');
+    }
   };
 
-  const updateSupplier = (id: string, supplier: Omit<Supplier, 'id'>) => {
-    setState((prev) => ({
-      ...prev,
-      suppliers: prev.suppliers.map((s) => (s.id === id ? { ...supplier, id } : s)),
-    }));
+  const updateSupplier = async (id: string, supplier: Partial<Supplier>) => {
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, 'suppliers', id), supplier);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `suppliers/${id}`);
+    }
   };
 
-  const deleteSupplier = (id: string) => {
-    setState((prev) => ({
-      ...prev,
-      suppliers: prev.suppliers.filter((s) => s.id !== id),
-    }));
+  const deleteSupplier = async (id: string) => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, 'suppliers', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `suppliers/${id}`);
+    }
   };
 
-  const addInvoice = (invoice: Omit<Invoice, 'id'>) => {
-    setState((prev) => ({
-      ...prev,
-      invoices: [...prev.invoices, { ...invoice, id: uuidv4() }],
-    }));
+  const addInvoice = async (invoice: Omit<Invoice, 'id' | 'userId' | 'createdAt'>) => {
+    if (!user) return;
+    try {
+      await addDoc(collection(db, 'invoices'), {
+        ...invoice,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'invoices');
+    }
   };
 
-  const updateInvoice = (id: string, invoice: Partial<Invoice>) => {
-    setState((prev) => ({
-      ...prev,
-      invoices: prev.invoices.map((i) => (i.id === id ? { ...i, ...invoice } : i)),
-    }));
+  const updateInvoice = async (id: string, invoice: Partial<Invoice>) => {
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, 'invoices', id), invoice);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `invoices/${id}`);
+    }
   };
 
-  const deleteInvoice = (id: string) => {
-    setState((prev) => ({
-      ...prev,
-      invoices: prev.invoices.filter((i) => i.id !== id),
-    }));
+  const deleteInvoice = async (id: string) => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, 'invoices', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `invoices/${id}`);
+    }
   };
 
-  const updateCompanyProfile = (profile: CompanyProfile) => {
-    setState((prev) => ({
-      ...prev,
-      companyProfile: profile,
-    }));
+  const updateCompanyProfile = async (profile: Omit<CompanyProfile, 'userId' | 'updatedAt'>) => {
+    if (!user) return;
+    try {
+      await setDoc(doc(db, 'companyProfiles', user.uid), {
+        ...profile,
+        userId: user.uid,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `companyProfiles/${user.uid}`);
+    }
   };
 
   return (
     <AppContext.Provider
       value={{
-        ...state,
+        user,
+        isAuthReady,
+        clients,
+        suppliers,
+        invoices,
+        companyProfile,
         addClient,
         updateClient,
         deleteClient,

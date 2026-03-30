@@ -52,22 +52,25 @@ export default function CreateInvoice() {
 
   const total = items.reduce((sum, item) => sum + item.subtotal, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (formData.type === 'Receivable' && !formData.clientId) {
-      alert('Please select a client');
+      setError('Silakan pilih klien');
       return;
     }
     if (formData.type === 'Payable' && !formData.supplierId) {
-      alert('Please select a supplier');
+      setError('Silakan pilih pemasok');
       return;
     }
     if (items.some((item) => !item.name)) {
-      alert('Please fill in all item names');
+      setError('Silakan isi semua nama item');
       return;
     }
 
-    addInvoice({
+    await addInvoice({
       ...formData,
       items,
       total,
@@ -78,15 +81,25 @@ export default function CreateInvoice() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Create Invoice</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Buat Faktur</h1>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-lg border border-gray-200">
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
             <div>
               <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-                Type
+                Tipe
               </label>
               <select
                 id="type"
@@ -94,14 +107,14 @@ export default function CreateInvoice() {
                 onChange={(e) => setFormData({ ...formData, type: e.target.value as any, clientId: '', supplierId: '' })}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
               >
-                <option value="Receivable">Receivable (To Client)</option>
-                <option value="Payable">Payable (From Supplier)</option>
+                <option value="Receivable">Piutang (Ke Klien)</option>
+                <option value="Payable">Hutang (Dari Pemasok)</option>
               </select>
             </div>
 
             <div>
               <label htmlFor="invoiceNumber" className="block text-sm font-medium text-gray-700">
-                Invoice Number
+                Nomor Faktur
               </label>
               <input
                 type="text"
@@ -115,7 +128,7 @@ export default function CreateInvoice() {
 
             <div>
               <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-                Date
+                Tanggal
               </label>
               <input
                 type="date"
@@ -130,7 +143,7 @@ export default function CreateInvoice() {
             {formData.type === 'Receivable' ? (
               <div>
                 <label htmlFor="client" className="block text-sm font-medium text-gray-700">
-                  Client
+                  Klien
                 </label>
                 <select
                   id="client"
@@ -139,7 +152,7 @@ export default function CreateInvoice() {
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
                   required
                 >
-                  <option value="">Select a client</option>
+                  <option value="">Pilih klien</option>
                   {clients.map((client) => (
                     <option key={client.id} value={client.id}>
                       {client.name}
@@ -150,7 +163,7 @@ export default function CreateInvoice() {
             ) : (
               <div>
                 <label htmlFor="supplier" className="block text-sm font-medium text-gray-700">
-                  Supplier
+                  Pemasok
                 </label>
                 <select
                   id="supplier"
@@ -159,7 +172,7 @@ export default function CreateInvoice() {
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
                   required
                 >
-                  <option value="">Select a supplier</option>
+                  <option value="">Pilih pemasok</option>
                   {/* We need to import suppliers from useAppContext */}
                   {/* Let's fix this in the next edit or just destructure it now */}
                   {suppliers.map((supplier) => (
@@ -181,39 +194,39 @@ export default function CreateInvoice() {
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
               >
-                <option value="Draft">Draft</option>
-                <option value="Sent">Sent</option>
-                <option value="Paid">Paid</option>
+                <option value="Draft">Draf</option>
+                <option value="Sent">Terkirim</option>
+                <option value="Paid">Lunas</option>
               </select>
             </div>
           </div>
 
           <div className="mt-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Items</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Item</h3>
             <div className="space-y-4">
               <div className="hidden sm:grid sm:grid-cols-12 gap-4 text-sm font-medium text-gray-700">
-                <div className="col-span-4">Item Name</div>
-                <div className="col-span-2">Qty</div>
-                <div className="col-span-2">Unit</div>
-                <div className="col-span-2">Price</div>
+                <div className="col-span-4">Nama Item</div>
+                <div className="col-span-2">Kuantitas</div>
+                <div className="col-span-2">Satuan</div>
+                <div className="col-span-2">Harga</div>
                 <div className="col-span-2">Subtotal</div>
               </div>
               
               {items.map((item, index) => (
                 <div key={item.id} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center border-b sm:border-b-0 pb-4 sm:pb-0">
                   <div className="col-span-1 sm:col-span-4">
-                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Item Name</label>
+                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Nama Item</label>
                     <input
                       type="text"
                       value={item.name}
                       onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
-                      placeholder="Item description"
+                      placeholder="Deskripsi item"
                       className="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2"
                       required
                     />
                   </div>
                   <div className="col-span-1 sm:col-span-2">
-                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Qty</label>
+                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Kuantitas</label>
                     <input
                       type="number"
                       min="1"
@@ -224,18 +237,18 @@ export default function CreateInvoice() {
                     />
                   </div>
                   <div className="col-span-1 sm:col-span-2">
-                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Unit</label>
+                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Satuan</label>
                     <input
                       type="text"
                       value={item.unit}
                       onChange={(e) => handleItemChange(item.id, 'unit', e.target.value)}
-                      placeholder="pcs, box, etc."
+                      placeholder="pcs, box, dll."
                       className="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2"
                       required
                     />
                   </div>
                   <div className="col-span-1 sm:col-span-2">
-                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Price</label>
+                    <label className="block sm:hidden text-xs text-gray-500 mb-1">Harga</label>
                     <input
                       type="number"
                       min="0"
@@ -270,7 +283,7 @@ export default function CreateInvoice() {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <Plus className="-ml-0.5 mr-2 h-4 w-4" />
-                Add Item
+                Tambah Item
               </button>
             </div>
           </div>
@@ -286,7 +299,7 @@ export default function CreateInvoice() {
 
           <div className="border-t border-gray-200 pt-6">
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-              Notes / Terbilang / Bank Details
+              Catatan / Terbilang / Rekening Bank
             </label>
             <textarea
               id="notes"
@@ -294,7 +307,7 @@ export default function CreateInvoice() {
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2"
-              placeholder="e.g. Bank Transfer: Mandiri 123-456-789 a.n. Company"
+              placeholder="Misal: Transfer Bank: Mandiri 123-456-789 a.n. Perusahaan"
             />
           </div>
         </div>
@@ -305,13 +318,13 @@ export default function CreateInvoice() {
             onClick={() => navigate('/invoices')}
             className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Save Invoice
+            Simpan Faktur
           </button>
         </div>
       </form>

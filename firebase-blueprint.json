@@ -1,0 +1,96 @@
+{
+  "entities": {
+    "Client": {
+      "title": "Client",
+      "description": "A client or customer of the business",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Client's name" },
+        "address": { "type": "string", "description": "Client's address" },
+        "phone": { "type": "string", "description": "Client's phone number" },
+        "userId": { "type": "string", "description": "Owner's user ID" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "address", "phone", "userId", "createdAt"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "A supplier or vendor of the business",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Supplier's name" },
+        "address": { "type": "string", "description": "Supplier's address" },
+        "phone": { "type": "string", "description": "Supplier's phone number" },
+        "userId": { "type": "string", "description": "Owner's user ID" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "address", "phone", "userId", "createdAt"]
+    },
+    "InvoiceItem": {
+      "title": "InvoiceItem",
+      "description": "An item in an invoice",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "qty": { "type": "number" },
+        "unit": { "type": "string" },
+        "price": { "type": "number" },
+        "subtotal": { "type": "number" }
+      },
+      "required": ["id", "name", "qty", "unit", "price", "subtotal"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "An invoice record",
+      "type": "object",
+      "properties": {
+        "invoiceNumber": { "type": "string" },
+        "date": { "type": "string" },
+        "type": { "type": "string", "enum": ["Receivable", "Payable"] },
+        "clientId": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "#/entities/InvoiceItem" } },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["Draft", "Sent", "Paid"] },
+        "notes": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["invoiceNumber", "date", "type", "items", "total", "status", "userId", "createdAt"]
+    },
+    "CompanyProfile": {
+      "title": "CompanyProfile",
+      "description": "The user's company profile settings",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "bankDetails": { "type": "string" },
+        "ownerName": { "type": "string" },
+        "userId": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "address", "phone", "bankDetails", "ownerName", "userId", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/clients/{clientId}": {
+      "schema": { "$ref": "#/entities/Client" },
+      "description": "Stores client records"
+    },
+    "/suppliers/{supplierId}": {
+      "schema": { "$ref": "#/entities/Supplier" },
+      "description": "Stores supplier records"
+    },
+    "/invoices/{invoiceId}": {
+      "schema": { "$ref": "#/entities/Invoice" },
+      "description": "Stores invoice records"
+    },
+    "/companyProfiles/{profileId}": {
+      "schema": { "$ref": "#/entities/CompanyProfile" },
+      "description": "Stores user company profiles (document ID is the userId)"
+    }
+  }
+}

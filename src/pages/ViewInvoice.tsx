@@ -19,12 +19,12 @@ export default function ViewInvoice() {
   if (!invoice) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-semibold text-gray-900">Invoice not found</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">Faktur tidak ditemukan</h2>
         <button
           onClick={() => navigate('/invoices')}
           className="mt-4 text-indigo-600 hover:text-indigo-900"
         >
-          Back to Invoices
+          Kembali ke Faktur
         </button>
       </div>
     );
@@ -42,14 +42,14 @@ export default function ViewInvoice() {
           className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
+          Kembali
         </button>
         <button
           onClick={handlePrint}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <Printer className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-          Print / Save PDF
+          Cetak / Simpan PDF
         </button>
       </div>
 
@@ -61,7 +61,7 @@ export default function ViewInvoice() {
           <h1 className="text-3xl font-bold uppercase tracking-widest">NOTA</h1>
           <h2 className="text-xl font-bold mt-2">{companyProfile.name}</h2>
           <p className="text-sm whitespace-pre-wrap">{companyProfile.address}</p>
-          <p className="text-sm">Phone : {companyProfile.phone}</p>
+          <p className="text-sm">Telepon : {companyProfile.phone}</p>
         </div>
 
         <div className="flex justify-between mb-8">
@@ -87,7 +87,7 @@ export default function ViewInvoice() {
               <p>{entity.phone}</p>
             </div>
           ) : (
-            <p>Unknown {invoice.type === 'Receivable' ? 'Client' : 'Supplier'}</p>
+            <p>Tidak diketahui {invoice.type === 'Receivable' ? 'Klien' : 'Pemasok'}</p>
           )}
         </div>
 

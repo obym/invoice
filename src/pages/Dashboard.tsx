@@ -12,15 +12,15 @@ export default function Dashboard() {
   const pendingInvoices = invoices.filter((i) => i.status === 'Sent').length;
 
   const stats = [
-    { name: 'Total Receivable', stat: formatCurrency(totalReceivable), icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100' },
-    { name: 'Total Payable', stat: formatCurrency(totalPayable), icon: DollarSign, color: 'text-red-600', bg: 'bg-red-100' },
-    { name: 'Total Clients', stat: clients.length.toString(), icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-    { name: 'Total Suppliers', stat: suppliers.length.toString(), icon: Truck, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { name: 'Total Piutang', stat: formatCurrency(totalReceivable), icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100' },
+    { name: 'Total Hutang', stat: formatCurrency(totalPayable), icon: DollarSign, color: 'text-red-600', bg: 'bg-red-100' },
+    { name: 'Total Klien', stat: clients.length.toString(), icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-100' },
+    { name: 'Total Pemasok', stat: suppliers.length.toString(), icon: Truck, color: 'text-orange-600', bg: 'bg-orange-100' },
   ];
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg leading-6 font-medium text-gray-900">Overview</h3>
+      <h3 className="text-lg leading-6 font-medium text-gray-900">Ringkasan</h3>
       <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => (
           <div
@@ -42,10 +42,10 @@ export default function Dashboard() {
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Invoice Status</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Status Faktur</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-500">Paid</span>
+              <span className="text-sm font-medium text-gray-500">Lunas</span>
               <span className="text-sm font-semibold text-gray-900">{paidInvoices}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -55,7 +55,7 @@ export default function Dashboard() {
               ></div>
             </div>
             <div className="flex items-center justify-between pt-4">
-              <span className="text-sm font-medium text-gray-500">Pending / Sent</span>
+              <span className="text-sm font-medium text-gray-500">Tertunda / Terkirim</span>
               <span className="text-sm font-semibold text-gray-900">{pendingInvoices}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -68,7 +68,7 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Invoices</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Faktur Terbaru</h3>
           <div className="flow-root">
             <ul className="-my-5 divide-y divide-gray-200">
               {invoices.slice(-5).reverse().map((invoice) => {
@@ -84,14 +84,14 @@ export default function Dashboard() {
                           {invoice.invoiceNumber}
                         </p>
                         <p className="text-sm text-gray-500 truncate">
-                          {entityName || 'Unknown'}
+                          {entityName || 'Tidak diketahui'}
                         </p>
                       </div>
                       <div>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           invoice.type === 'Receivable' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
                         }`}>
-                          {invoice.type}
+                          {invoice.type === 'Receivable' ? 'Piutang' : 'Hutang'}
                         </span>
                       </div>
                       <div className="text-sm font-semibold text-gray-900">
@@ -102,7 +102,7 @@ export default function Dashboard() {
                 );
               })}
               {invoices.length === 0 && (
-                <li className="py-4 text-sm text-gray-500 text-center">No invoices yet.</li>
+                <li className="py-4 text-sm text-gray-500 text-center">Belum ada faktur.</li>
               )}
             </ul>
           </div>

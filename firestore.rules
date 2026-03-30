@@ -1,0 +1,207 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: clients
+// Document ID: auto-generated
+// Fields:
+//   - name: string (required, 1-100 chars)
+//   - address: string (required, 1-500 chars)
+//   - phone: string (required, 1-50 chars)
+//   - userId: string (required, matches auth.uid, immutable)
+//   - createdAt: timestamp (required, immutable)
+//
+// Collection: suppliers
+// Document ID: auto-generated
+// Fields:
+//   - name: string (required, 1-100 chars)
+//   - address: string (required, 1-500 chars)
+//   - phone: string (required, 1-50 chars)
+//   - userId: string (required, matches auth.uid, immutable)
+//   - createdAt: timestamp (required, immutable)
+//
+// Collection: invoices
+// Document ID: auto-generated
+// Fields:
+//   - invoiceNumber: string (required, 1-50 chars)
+//   - date: string (required, 1-20 chars)
+//   - type: string (required, 'Receivable' or 'Payable')
+//   - clientId: string (optional, 0-50 chars)
+//   - supplierId: string (optional, 0-50 chars)
+//   - items: list of objects (required, max 100 items)
+//   - total: number (required, >= 0)
+//   - status: string (required, 'Draft', 'Sent', 'Paid')
+//   - notes: string (optional, 0-1000 chars)
+//   - userId: string (required, matches auth.uid, immutable)
+//   - createdAt: timestamp (required, immutable)
+//
+// Collection: companyProfiles
+// Document ID: {userId}
+// Fields:
+//   - name: string (required, 1-100 chars)
+//   - address: string (required, 1-500 chars)
+//   - phone: string (required, 1-50 chars)
+//   - bankDetails: string (required, 1-500 chars)
+//   - ownerName: string (required, 1-100 chars)
+//   - userId: string (required, matches auth.uid, immutable)
+//   - updatedAt: timestamp (required)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function uidUnchanged() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    function validOptionalStringLength(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+        (request.resource.data[field] is string &&
+         request.resource.data[field].size() >= minLen &&
+         request.resource.data[field].size() <= maxLen);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidClient() {
+      return hasRequiredFields(['name', 'address', 'phone', 'userId', 'createdAt']) &&
+             hasOnlyAllowedFields(['name', 'address', 'phone', 'userId', 'createdAt']) &&
+             validStringLength('name', 1, 100) &&
+             validStringLength('address', 1, 500) &&
+             validStringLength('phone', 1, 50) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.createdAt is timestamp;
+    }
+
+    function isValidSupplier() {
+      return hasRequiredFields(['name', 'address', 'phone', 'userId', 'createdAt']) &&
+             hasOnlyAllowedFields(['name', 'address', 'phone', 'userId', 'createdAt']) &&
+             validStringLength('name', 1, 100) &&
+             validStringLength('address', 1, 500) &&
+             validStringLength('phone', 1, 50) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.createdAt is timestamp;
+    }
+
+    function isValidInvoiceItem(item) {
+      return item.keys().hasAll(['id', 'name', 'qty', 'unit', 'price', 'subtotal']) &&
+             item.keys().hasOnly(['id', 'name', 'qty', 'unit', 'price', 'subtotal']) &&
+             item.id is string && item.id.size() > 0 && item.id.size() <= 100 &&
+             item.name is string && item.name.size() > 0 && item.name.size() <= 200 &&
+             item.qty is number && item.qty >= 0 &&
+             item.unit is string && item.unit.size() > 0 && item.unit.size() <= 50 &&
+             item.price is number && item.price >= 0 &&
+             item.subtotal is number && item.subtotal >= 0;
+    }
+
+    function areInvoiceItemsValid(items) {
+      return items is list && items.size() >= 0 && items.size() <= 100;
+      // Note: Firestore rules have limited support for mapping over lists. 
+      // We enforce list size and type here. Deeper validation requires custom functions or client-side trust + basic type checks.
+      // For simplicity and to avoid rule complexity limits, we check if it's a list.
+    }
+
+    function isValidInvoice() {
+      return hasRequiredFields(['invoiceNumber', 'date', 'type', 'items', 'total', 'status', 'userId', 'createdAt']) &&
+             hasOnlyAllowedFields(['invoiceNumber', 'date', 'type', 'clientId', 'supplierId', 'items', 'total', 'status', 'notes', 'userId', 'createdAt']) &&
+             validStringLength('invoiceNumber', 1, 50) &&
+             validStringLength('date', 1, 20) &&
+             request.resource.data.type in ['Receivable', 'Payable'] &&
+             validOptionalStringLength('clientId', 0, 50) &&
+             validOptionalStringLength('supplierId', 0, 50) &&
+             areInvoiceItemsValid(request.resource.data.items) &&
+             request.resource.data.total is number && request.resource.data.total >= 0 &&
+             request.resource.data.status in ['Draft', 'Sent', 'Paid'] &&
+             validOptionalStringLength('notes', 0, 1000) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.createdAt is timestamp;
+    }
+
+    function isValidCompanyProfile() {
+      return hasRequiredFields(['name', 'address', 'phone', 'bankDetails', 'ownerName', 'userId', 'updatedAt']) &&
+             hasOnlyAllowedFields(['name', 'address', 'phone', 'bankDetails', 'ownerName', 'userId', 'updatedAt']) &&
+             validStringLength('name', 1, 100) &&
+             validStringLength('address', 1, 500) &&
+             validStringLength('phone', 1, 50) &&
+             validStringLength('bankDetails', 1, 500) &&
+             validStringLength('ownerName', 1, 100) &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.updatedAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /clients/{clientId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidClient() && uidUnchanged();
+      allow update: if isDocOwner() && isValidClient() && uidNotModified() && areImmutableFieldsUnchanged(['createdAt', 'userId']);
+      allow delete: if isDocOwner();
+    }
+
+    match /suppliers/{supplierId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidSupplier() && uidUnchanged();
+      allow update: if isDocOwner() && isValidSupplier() && uidNotModified() && areImmutableFieldsUnchanged(['createdAt', 'userId']);
+      allow delete: if isDocOwner();
+    }
+
+    match /invoices/{invoiceId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidInvoice() && uidUnchanged();
+      allow update: if isDocOwner() && isValidInvoice() && uidNotModified() && areImmutableFieldsUnchanged(['createdAt', 'userId']);
+      allow delete: if isDocOwner();
+    }
+
+    match /companyProfiles/{profileId} {
+      allow read: if isOwner(profileId) && isDocOwner();
+      allow create: if isOwner(profileId) && isValidCompanyProfile() && uidUnchanged();
+      allow update: if isOwner(profileId) && isDocOwner() && isValidCompanyProfile() && uidNotModified() && areImmutableFieldsUnchanged(['userId']);
+      allow delete: if isOwner(profileId) && isDocOwner();
+    }
+  }
+}
