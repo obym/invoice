@@ -198,7 +198,7 @@ service cloud.firestore {
     }
 
     match /companyProfiles/{profileId} {
-      allow read: if isOwner(profileId) && isDocOwner();
+      allow read: if isOwner(profileId);
       allow create: if isOwner(profileId) && isValidCompanyProfile() && uidUnchanged();
       allow update: if isOwner(profileId) && isDocOwner() && isValidCompanyProfile() && uidNotModified() && areImmutableFieldsUnchanged(['userId']);
       allow delete: if isOwner(profileId) && isDocOwner();
