@@ -54,6 +54,7 @@
         "total": { "type": "number" },
         "status": { "type": "string", "enum": ["Draft", "Sent", "Paid"] },
         "notes": { "type": "string" },
+        "terbilang": { "type": "string" },
         "userId": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },

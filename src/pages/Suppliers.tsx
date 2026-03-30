@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAppContext } from '../store/AppContext';
+import { useAppContext, Supplier } from '../store/AppContext';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 
 export default function Suppliers() {

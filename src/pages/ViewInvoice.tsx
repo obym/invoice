@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../store/AppContext';
-import { formatCurrency } from '../lib/utils';
+import { formatCurrency, formatTerbilang } from '../lib/utils';
 import { format } from 'date-fns';
 import { Printer, ArrowLeft } from 'lucide-react';
 
@@ -124,9 +124,18 @@ export default function ViewInvoice() {
         <div className="mb-8">
           <p className="font-semibold mb-1">Terbilang :</p>
           <div className="border border-black p-2 min-h-[40px] italic">
-            {invoice.notes || "Sesuai total di atas"}
+            {invoice.terbilang || formatTerbilang(invoice.total)}
           </div>
         </div>
+
+        {invoice.notes && (
+          <div className="mb-8">
+            <p className="font-semibold mb-1">Catatan :</p>
+            <div className="border border-black p-2 min-h-[40px]">
+              {invoice.notes}
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-between mt-12">
           <div className="w-1/2">

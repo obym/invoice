@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../store/AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus, Trash2 } from 'lucide-react';
+import { formatTerbilang } from '../lib/utils';
 
 export default function CreateInvoice() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function CreateInvoice() {
     supplierId: '',
     status: 'Draft' as 'Draft' | 'Sent' | 'Paid',
     notes: '',
+    terbilang: '',
   });
 
   const [items, setItems] = useState([
@@ -51,6 +53,14 @@ export default function CreateInvoice() {
   };
 
   const total = items.reduce((sum, item) => sum + item.subtotal, 0);
+
+  // Auto-update terbilang when total changes
+  React.useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      terbilang: formatTerbilang(total)
+    }));
+  }, [total]);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -298,8 +308,20 @@ export default function CreateInvoice() {
           </div>
 
           <div className="border-t border-gray-200 pt-6">
+            <label htmlFor="terbilang" className="block text-sm font-medium text-gray-700">
+              Terbilang
+            </label>
+            <input
+              type="text"
+              id="terbilang"
+              value={formData.terbilang}
+              onChange={(e) => setFormData({ ...formData, terbilang: e.target.value })}
+              className="mt-1 mb-4 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2 bg-gray-50"
+              placeholder="Terbilang otomatis"
+            />
+
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-              Catatan / Terbilang / Rekening Bank
+              Catatan / Rekening Bank
             </label>
             <textarea
               id="notes"

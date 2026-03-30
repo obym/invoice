@@ -146,7 +146,7 @@ service cloud.firestore {
 
     function isValidInvoice() {
       return hasRequiredFields(['invoiceNumber', 'date', 'type', 'items', 'total', 'status', 'userId', 'createdAt']) &&
-             hasOnlyAllowedFields(['invoiceNumber', 'date', 'type', 'clientId', 'supplierId', 'items', 'total', 'status', 'notes', 'userId', 'createdAt']) &&
+             hasOnlyAllowedFields(['invoiceNumber', 'date', 'type', 'clientId', 'supplierId', 'items', 'total', 'status', 'notes', 'terbilang', 'userId', 'createdAt']) &&
              validStringLength('invoiceNumber', 1, 50) &&
              validStringLength('date', 1, 20) &&
              request.resource.data.type in ['Receivable', 'Payable'] &&
@@ -156,6 +156,7 @@ service cloud.firestore {
              request.resource.data.total is number && request.resource.data.total >= 0 &&
              request.resource.data.status in ['Draft', 'Sent', 'Paid'] &&
              validOptionalStringLength('notes', 0, 1000) &&
+             validOptionalStringLength('terbilang', 0, 1000) &&
              request.resource.data.userId == request.auth.uid &&
              request.resource.data.createdAt is timestamp;
     }

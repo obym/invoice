@@ -41,6 +41,7 @@ export interface Invoice {
   total: number;
   status: 'Draft' | 'Sent' | 'Paid';
   notes?: string;
+  terbilang?: string;
   userId: string;
   createdAt?: any;
 }
