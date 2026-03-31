@@ -24,7 +24,7 @@ export default function CreateInvoice() {
   });
 
   const [items, setItems] = useState([
-    { id: uuidv4(), name: '', qty: 1, unit: 'pcs', price: 0, subtotal: 0 },
+    { id: uuidv4(), name: '', qty: 1 as number | '', unit: 'pcs', price: '' as number | '', subtotal: 0 },
   ]);
 
   const handleItemChange = (id: string, field: string, value: string | number) => {
@@ -43,7 +43,7 @@ export default function CreateInvoice() {
   };
 
   const addItem = () => {
-    setItems([...items, { id: uuidv4(), name: '', qty: 1, unit: 'pcs', price: 0, subtotal: 0 }]);
+    setItems([...items, { id: uuidv4(), name: '', qty: 1 as number | '', unit: 'pcs', price: '' as number | '', subtotal: 0 }]);
   };
 
   const removeItem = (id: string) => {
@@ -80,9 +80,15 @@ export default function CreateInvoice() {
       return;
     }
 
+    const sanitizedItems = items.map(item => ({
+      ...item,
+      qty: item.qty === '' ? 0 : item.qty,
+      price: item.price === '' ? 0 : item.price,
+    }));
+
     await addInvoice({
       ...formData,
-      items,
+      items: sanitizedItems,
       total,
     });
     navigate('/invoices');
@@ -241,7 +247,7 @@ export default function CreateInvoice() {
                       type="number"
                       min="1"
                       value={item.qty}
-                      onChange={(e) => handleItemChange(item.id, 'qty', Number(e.target.value))}
+                      onChange={(e) => handleItemChange(item.id, 'qty', e.target.value === '' ? '' : Number(e.target.value))}
                       className="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2"
                       required
                     />
@@ -263,7 +269,7 @@ export default function CreateInvoice() {
                       type="number"
                       min="0"
                       value={item.price}
-                      onChange={(e) => handleItemChange(item.id, 'price', Number(e.target.value))}
+                      onChange={(e) => handleItemChange(item.id, 'price', e.target.value === '' ? '' : Number(e.target.value))}
                       className="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2"
                       required
                     />

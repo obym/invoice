@@ -7,6 +7,7 @@ export interface Client {
   id: string;
   name: string;
   address: string;
+  district?: string;
   phone: string;
   userId: string;
   createdAt?: any;
@@ -16,6 +17,7 @@ export interface Supplier {
   id: string;
   name: string;
   address: string;
+  district?: string;
   phone: string;
   userId: string;
   createdAt?: any;
@@ -24,9 +26,9 @@ export interface Supplier {
 export interface InvoiceItem {
   id: string;
   name: string;
-  qty: number;
+  qty: number | '';
   unit: string;
-  price: number;
+  price: number | '';
   subtotal: number;
 }
 

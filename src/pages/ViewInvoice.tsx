@@ -84,6 +84,7 @@ export default function ViewInvoice() {
             <div className="font-bold">
               <p>{entity.name}</p>
               <p className="whitespace-pre-wrap">{entity.address}</p>
+              {entity.district && <p>{entity.district}</p>}
               <p>{entity.phone}</p>
             </div>
           ) : (

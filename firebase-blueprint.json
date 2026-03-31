@@ -7,6 +7,7 @@
       "properties": {
         "name": { "type": "string", "description": "Client's name" },
         "address": { "type": "string", "description": "Client's address" },
+        "district": { "type": "string", "description": "Client's district (Kecamatan dan Kabupaten)" },
         "phone": { "type": "string", "description": "Client's phone number" },
         "userId": { "type": "string", "description": "Owner's user ID" },
         "createdAt": { "type": "string", "format": "date-time" }
@@ -20,6 +21,7 @@
       "properties": {
         "name": { "type": "string", "description": "Supplier's name" },
         "address": { "type": "string", "description": "Supplier's address" },
+        "district": { "type": "string", "description": "Supplier's district (Kecamatan dan Kabupaten)" },
         "phone": { "type": "string", "description": "Supplier's phone number" },
         "userId": { "type": "string", "description": "Owner's user ID" },
         "createdAt": { "type": "string", "format": "date-time" }
