@@ -19,13 +19,13 @@ export default function Invoices() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Faktur</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Nota</h1>
         <Link
           to="/invoices/create"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-          Buat Faktur
+          Buat Nota
         </Link>
       </div>
 
@@ -37,13 +37,13 @@ export default function Invoices() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nomor Faktur
+                      Nomor Nota
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Tipe
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Klien / Pemasok
+                      Klien / Supplier
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Tanggal
@@ -115,7 +115,7 @@ export default function Invoices() {
                   {invoices.length === 0 && (
                     <tr>
                       <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
-                        Tidak ada faktur ditemukan.
+                        Tidak ada nota ditemukan.
                       </td>
                     </tr>
                   )}
@@ -134,12 +134,12 @@ export default function Invoices() {
                 <Trash2 className="h-6 w-6 text-red-600" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-medium text-gray-900" id="modal-title">
-                Hapus Faktur
+                Hapus Nota
               </h3>
             </div>
             <div className="p-6">
               <p className="text-sm text-gray-500">
-                Apakah Anda yakin ingin menghapus faktur ini? Tindakan ini tidak dapat dibatalkan.
+                Apakah Anda yakin ingin menghapus nota ini? Tindakan ini tidak dapat dibatalkan.
               </p>
             </div>
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">

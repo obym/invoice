@@ -27,7 +27,7 @@ export default function Login() {
           Invoice Koperasi Garuda Merah Putih
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Masuk untuk mengelola faktur, klien, dan pemasok Anda
+          Masuk untuk mengelola nota, klien, dan supplier Anda
         </p>
       </div>
 

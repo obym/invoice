@@ -119,11 +119,12 @@ service cloud.firestore {
 
     function isValidSupplier() {
       return hasRequiredFields(['name', 'address', 'phone', 'userId', 'createdAt']) &&
-             hasOnlyAllowedFields(['name', 'address', 'district', 'phone', 'userId', 'createdAt']) &&
+             hasOnlyAllowedFields(['name', 'address', 'district', 'phone', 'suppliedProduct', 'userId', 'createdAt']) &&
              validStringLength('name', 1, 100) &&
              validStringLength('address', 1, 500) &&
              validOptionalStringLength('district', 0, 200) &&
              validStringLength('phone', 1, 50) &&
+             validOptionalStringLength('suppliedProduct', 0, 500) &&
              request.resource.data.userId == request.auth.uid &&
              request.resource.data.createdAt is timestamp;
     }

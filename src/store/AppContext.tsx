@@ -19,6 +19,7 @@ export interface Supplier {
   address: string;
   district?: string;
   phone: string;
+  suppliedProduct?: string;
   userId: string;
   createdAt?: any;
 }

@@ -72,7 +72,7 @@ export default function CreateInvoice() {
       return;
     }
     if (formData.type === 'Payable' && !formData.supplierId) {
-      setError('Silakan pilih pemasok');
+      setError('Silakan pilih supplier');
       return;
     }
     if (items.some((item) => !item.name)) {
@@ -97,7 +97,7 @@ export default function CreateInvoice() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Buat Faktur</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Buat Nota</h1>
       </div>
 
       {error && (
@@ -124,13 +124,13 @@ export default function CreateInvoice() {
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
               >
                 <option value="Receivable">Piutang (Ke Klien)</option>
-                <option value="Payable">Hutang (Dari Pemasok)</option>
+                <option value="Payable">Hutang (Dari Supplier)</option>
               </select>
             </div>
 
             <div>
               <label htmlFor="invoiceNumber" className="block text-sm font-medium text-gray-700">
-                Nomor Faktur
+                Nomor Nota
               </label>
               <input
                 type="text"
@@ -179,7 +179,7 @@ export default function CreateInvoice() {
             ) : (
               <div>
                 <label htmlFor="supplier" className="block text-sm font-medium text-gray-700">
-                  Pemasok
+                  Supplier
                 </label>
                 <select
                   id="supplier"
@@ -188,9 +188,7 @@ export default function CreateInvoice() {
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
                   required
                 >
-                  <option value="">Pilih pemasok</option>
-                  {/* We need to import suppliers from useAppContext */}
-                  {/* Let's fix this in the next edit or just destructure it now */}
+                  <option value="">Pilih supplier</option>
                   {suppliers.map((supplier) => (
                     <option key={supplier.id} value={supplier.id}>
                       {supplier.name}
@@ -352,7 +350,7 @@ export default function CreateInvoice() {
             type="submit"
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Simpan Faktur
+            Simpan Nota
           </button>
         </div>
       </form>

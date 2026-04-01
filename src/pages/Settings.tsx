@@ -24,7 +24,7 @@ export default function Settings() {
         <div className="p-6 space-y-6">
           <h3 className="text-lg font-medium text-gray-900">Profil Perusahaan</h3>
           <p className="text-sm text-gray-500">
-            Informasi ini akan ditampilkan pada faktur Anda.
+            Informasi ini akan ditampilkan pada nota Anda.
           </p>
 
           <div className="grid grid-cols-1 gap-y-6 gap-x-4">

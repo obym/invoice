@@ -19,12 +19,12 @@ export default function ViewInvoice() {
   if (!invoice) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-semibold text-gray-900">Faktur tidak ditemukan</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">Nota tidak ditemukan</h2>
         <button
           onClick={() => navigate('/invoices')}
           className="mt-4 text-indigo-600 hover:text-indigo-900"
         >
-          Kembali ke Faktur
+          Kembali ke Nota
         </button>
       </div>
     );
@@ -86,9 +86,12 @@ export default function ViewInvoice() {
               <p className="whitespace-pre-wrap">{entity.address}</p>
               {entity.district && <p>{entity.district}</p>}
               <p>{entity.phone}</p>
+              {'suppliedProduct' in entity && entity.suppliedProduct && (
+                <p className="mt-1 text-sm font-normal italic">Produk: {entity.suppliedProduct}</p>
+              )}
             </div>
           ) : (
-            <p>Tidak diketahui {invoice.type === 'Receivable' ? 'Klien' : 'Pemasok'}</p>
+            <p>Tidak diketahui {invoice.type === 'Receivable' ? 'Klien' : 'Supplier'}</p>
           )}
         </div>
 

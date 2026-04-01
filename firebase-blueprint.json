@@ -23,6 +23,7 @@
         "address": { "type": "string", "description": "Supplier's address" },
         "district": { "type": "string", "description": "Supplier's district (Kecamatan dan Kabupaten)" },
         "phone": { "type": "string", "description": "Supplier's phone number" },
+        "suppliedProduct": { "type": "string", "description": "Products supplied by the supplier" },
         "userId": { "type": "string", "description": "Owner's user ID" },
         "createdAt": { "type": "string", "format": "date-time" }
       },

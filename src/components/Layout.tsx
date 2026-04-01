@@ -10,9 +10,9 @@ export default function Layout() {
 
   const navigation = [
     { name: 'Beranda', href: '/', icon: LayoutDashboard },
-    { name: 'Faktur', href: '/invoices', icon: FileText },
+    { name: 'Nota', href: '/invoices', icon: FileText },
     { name: 'Klien', href: '/clients', icon: Users },
-    { name: 'Pemasok', href: '/suppliers', icon: Truck },
+    { name: 'Supplier', href: '/suppliers', icon: Truck },
     { name: 'Pengaturan', href: '/settings', icon: Settings },
   ];
 

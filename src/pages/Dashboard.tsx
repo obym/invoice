@@ -15,7 +15,7 @@ export default function Dashboard() {
     { name: 'Total Piutang', stat: formatCurrency(totalReceivable), icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100' },
     { name: 'Total Hutang', stat: formatCurrency(totalPayable), icon: DollarSign, color: 'text-red-600', bg: 'bg-red-100' },
     { name: 'Total Klien', stat: clients.length.toString(), icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-    { name: 'Total Pemasok', stat: suppliers.length.toString(), icon: Truck, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { name: 'Total Supplier', stat: suppliers.length.toString(), icon: Truck, color: 'text-orange-600', bg: 'bg-orange-100' },
   ];
 
   return (
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Status Faktur</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Status Nota</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-500">Lunas</span>
@@ -68,7 +68,7 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Faktur Terbaru</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Nota Terbaru</h3>
           <div className="flow-root">
             <ul className="-my-5 divide-y divide-gray-200">
               {invoices.slice(-5).reverse().map((invoice) => {
@@ -102,7 +102,7 @@ export default function Dashboard() {
                 );
               })}
               {invoices.length === 0 && (
-                <li className="py-4 text-sm text-gray-500 text-center">Belum ada faktur.</li>
+                <li className="py-4 text-sm text-gray-500 text-center">Belum ada nota.</li>
               )}
             </ul>
           </div>

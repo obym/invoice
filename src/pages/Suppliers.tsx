@@ -7,15 +7,15 @@ export default function Suppliers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', address: '', district: '', phone: '' });
+  const [formData, setFormData] = useState({ name: '', address: '', district: '', phone: '', suppliedProduct: '' });
 
   const handleOpenModal = (supplier: Supplier | null = null) => {
     if (supplier && supplier.id) {
       setEditingId(supplier.id);
-      setFormData({ name: supplier.name, address: supplier.address, district: supplier.district || '', phone: supplier.phone });
+      setFormData({ name: supplier.name, address: supplier.address, district: supplier.district || '', phone: supplier.phone, suppliedProduct: supplier.suppliedProduct || '' });
     } else {
       setEditingId(null);
-      setFormData({ name: '', address: '', district: '', phone: '' });
+      setFormData({ name: '', address: '', district: '', phone: '', suppliedProduct: '' });
     }
     setIsModalOpen(true);
   };
@@ -40,13 +40,13 @@ export default function Suppliers() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Pemasok</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Supplier</h1>
         <button
           onClick={() => handleOpenModal(null)}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-          Tambah Pemasok
+          Tambah Supplier
         </button>
       </div>
 
@@ -69,6 +69,9 @@ export default function Suppliers() {
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Kecamatan/Kabupaten
                     </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Produk yang disupply
+                    </th>
                     <th scope="col" className="relative px-6 py-3">
                       <span className="sr-only">Aksi</span>
                     </th>
@@ -89,6 +92,9 @@ export default function Suppliers() {
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {supplier.district || '-'}
                       </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {supplier.suppliedProduct || '-'}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => handleOpenModal(supplier)}
@@ -107,8 +113,8 @@ export default function Suppliers() {
                   ))}
                   {suppliers.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
-                        Tidak ada pemasok ditemukan.
+                      <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                        Tidak ada supplier ditemukan.
                       </td>
                     </tr>
                   )}
@@ -125,7 +131,7 @@ export default function Suppliers() {
             <form onSubmit={handleSubmit} className="flex flex-col h-full">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900" id="modal-title">
-                  {editingId ? 'Edit Pemasok' : 'Tambah Pemasok'}
+                  {editingId ? 'Edit Supplier' : 'Tambah Supplier'}
                 </h3>
               </div>
               <div className="p-6 overflow-y-auto space-y-4">
@@ -177,6 +183,18 @@ export default function Suppliers() {
                     placeholder="Contoh: Kec. Medan Barat, Kota Medan"
                   />
                 </div>
+                <div>
+                  <label htmlFor="suppliedProduct" className="block text-sm font-medium text-gray-700">Produk yang disupply</label>
+                  <input
+                    type="text"
+                    name="suppliedProduct"
+                    id="suppliedProduct"
+                    value={formData.suppliedProduct}
+                    onChange={(e) => setFormData({ ...formData, suppliedProduct: e.target.value })}
+                    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md border p-2"
+                    placeholder="Contoh: Kertas HVS, Tinta Printer"
+                  />
+                </div>
               </div>
               <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
                 <button
@@ -206,12 +224,12 @@ export default function Suppliers() {
                 <Trash2 className="h-6 w-6 text-red-600" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-medium text-gray-900" id="modal-title">
-                Hapus Pemasok
+                Hapus Supplier
               </h3>
             </div>
             <div className="p-6">
               <p className="text-sm text-gray-500">
-                Apakah Anda yakin ingin menghapus pemasok ini? Tindakan ini tidak dapat dibatalkan.
+                Apakah Anda yakin ingin menghapus supplier ini? Tindakan ini tidak dapat dibatalkan.
               </p>
             </div>
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
